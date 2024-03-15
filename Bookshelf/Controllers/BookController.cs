@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using api.Extensions;
 using Bookshelf.Dtos.Book;
 using Bookshelf.Dtos.Comment;
 using Bookshelf.Helpers;
 using Bookshelf.Interfaces;
 using Bookshelf.Mappers;
 using Bookshelf.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bookshelf.Controllers
@@ -18,11 +21,13 @@ namespace Bookshelf.Controllers
     {
         private readonly IBookRepository _bookRepository;
         private readonly ICommentRepository _commentRepository;
+        private readonly UserManager<AppUser> _userManger;
 
-        public BookController(IBookRepository bookRepository, ICommentRepository commentRepository)
+        public BookController(IBookRepository bookRepository, ICommentRepository commentRepository,UserManager<AppUser> userManager)
         {
             _bookRepository = bookRepository;
             _commentRepository = commentRepository;
+            _userManger = userManager;
         }
 
         [HttpGet]
@@ -58,6 +63,7 @@ namespace Bookshelf.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<Book>> AddBook([FromBody] CreateBookDto book)
         {
             try {
@@ -71,9 +77,17 @@ namespace Bookshelf.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<ActionResult<Book>> UpdateBook([FromRoute] int id, [FromBody] UpdateBookDto book)
         {
             try {
+                // get the user id from the token
+                var username = User.GetUsername();
+                var user = await _userManger.FindByNameAsync(username);
+                if (user == null)
+                {
+                    return Unauthorized();
+                }
                 var updatedBook = await _bookRepository.UpdateBook(id, book);
                 if (updatedBook == null)
                 {
@@ -88,6 +102,7 @@ namespace Bookshelf.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize (Roles = "Admin")]
         public async Task<ActionResult<Book>> DeleteBook([FromRoute] int id)
         {
             try
@@ -106,11 +121,11 @@ namespace Bookshelf.Controllers
         }
 
         [HttpGet("{bookId}/comments")]
-        public async Task<ActionResult<List<Comment>>> GetComments([FromQuery] CommentQueryObject commentQuery)
+        public async Task<ActionResult<List<Comment>>> GetBookComments([FromQuery] CommentQueryObject commentQuery)
         {
             try
             {
-                var comments = await _commentRepository.GetComments(commentQuery);
+                var comments = await _commentRepository.GetBookComments(commentQuery);
                 return Ok(comments);
             }
             catch (Exception e)
@@ -138,6 +153,7 @@ namespace Bookshelf.Controllers
         }
 
         [HttpPost("{bookId}/comments")]
+        [Authorize]
         public async Task<ActionResult<Comment>> AddComment(int bookId, CreateCommentDto comment)
         {
             try
@@ -152,11 +168,18 @@ namespace Bookshelf.Controllers
         }
 
         [HttpPut("{bookId}/comments/{id}")]
+        [Authorize]
         public async Task<ActionResult<Comment>> UpdateComment(int bookId, int id, UpdateCommentDto comment)
         {
             try
             {
-                var updatedComment = await _commentRepository.UpdateComment(bookId, id, comment);
+                var username = User.GetUsername();
+                var user = await _userManger.FindByNameAsync(username);
+                if (user == null)
+                {
+                    return Unauthorized();
+                }
+                var updatedComment = await _commentRepository.UpdateComment(bookId, user.Id, id, comment);
                 if (updatedComment == null)
                 {
                     return NotFound();
@@ -170,11 +193,18 @@ namespace Bookshelf.Controllers
         }
 
         [HttpDelete("{bookId}/comments/{id}")]
+        [Authorize]
         public async Task<ActionResult<Comment>> DeleteComment(int id)
         {
             try
             {
-                var comment = await _commentRepository.DeleteComment(id);
+                var username = User.GetUsername();
+                var user = await _userManger.FindByNameAsync(username);
+                if (user == null)
+                {
+                    return Unauthorized();
+                }
+                var comment = await _commentRepository.DeleteComment(id, user.Id);
                 if (comment == null)
                 {
                     return NotFound();
