@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Bookshelf.Dtos.Comment;
+using Bookshelf.Helpers;
 using Bookshelf.Models;
 
 namespace Bookshelf.Interfaces
 {
     public interface ICommentRepository
     {
-        Task<List<Comment>> GetComments(int bookId);
+        Task<List<Comment>> GetComments(CommentQueryObject commentQuery);
         Task<Comment?> GetComment(int id);
         Task<Comment> AddComment(int bookId, CreateCommentDto comment);
         Task<Comment?> UpdateComment(int bookId, int commentId, UpdateCommentDto comment);

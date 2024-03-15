@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bookshelf.Data;
 using Bookshelf.Dtos.Comment;
+using Bookshelf.Helpers;
 using Bookshelf.Interfaces;
 using Bookshelf.Mappers;
 using Bookshelf.Models;
@@ -19,7 +20,7 @@ namespace Bookshelf.Repositories
         {
             _context = context;
         }
-        
+
 
         public async Task<Comment> AddComment(int bookId, CreateCommentDto comment)
         {
@@ -50,10 +51,16 @@ namespace Bookshelf.Repositories
             return comment;
         }
 
-        public async Task<List<Comment>> GetComments(int bookId)
+        public async Task<List<Comment>> GetComments(CommentQueryObject commentQuery)
         {
-            var comments = await _context.Comments.Where(c => c.BookId == bookId).ToListAsync();
-            return comments;
+            var comments = _context.Comments.Where(c => c.BookId == commentQuery.BookId).AsQueryable();
+            // if (commentQuery.OrderByFavorite)
+            // {
+
+            //     //TODO: Implement OrderByFavorite
+            // }
+            var skip = (commentQuery.Page - 1) * commentQuery.PageSize;
+            return await comments.Skip(skip).Take(commentQuery.PageSize).ToListAsync();
         }
 
         public async Task<Comment?> UpdateComment(int bookId, int commentId, UpdateCommentDto comment)

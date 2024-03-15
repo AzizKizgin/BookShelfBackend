@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bookshelf.Dtos.Book;
 using Bookshelf.Dtos.Comment;
+using Bookshelf.Helpers;
 using Bookshelf.Interfaces;
 using Bookshelf.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -24,11 +25,11 @@ namespace Bookshelf.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Book>>> GetBooks()
+        public async Task<ActionResult<List<Book>>> GetBooks([FromQuery] BookQueryObject queryObject)
         {
             try
             {
-                var books = await _bookRepository.GetBooks();
+                var books = await _bookRepository.GetBooks(queryObject);
                 return Ok(books);
             }
             catch (Exception e)
@@ -108,11 +109,11 @@ namespace Bookshelf.Controllers
         }
 
         [HttpGet("{bookId}/comments")]
-        public async Task<ActionResult<List<Comment>>> GetComments([FromRoute] int bookId)
+        public async Task<ActionResult<List<Comment>>> GetComments([FromQuery] CommentQueryObject commentQuery)
         {
             try
             {
-                var comments = await _commentRepository.GetComments(bookId);
+                var comments = await _commentRepository.GetComments(commentQuery);
                 return Ok(comments);
             }
             catch (Exception e)

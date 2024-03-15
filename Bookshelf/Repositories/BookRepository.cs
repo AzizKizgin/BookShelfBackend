@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bookshelf.Data;
 using Bookshelf.Dtos.Book;
+using Bookshelf.Helpers;
 using Bookshelf.Interfaces;
 using Bookshelf.Mappers;
 using Bookshelf.Models;
@@ -55,10 +56,19 @@ namespace Bookshelf.Repositories
             return book;
         }
 
-        public async Task<List<Book>> GetBooks()
+        public async Task<List<Book>> GetBooks(BookQueryObject bookQuery)
         {
-            var books = await _context.Books.ToListAsync();
-            return books;
+            var books = _context.Books.AsQueryable();
+            if (bookQuery.Title != null)
+            {
+                books = books.Where(b => b.Title.Contains(bookQuery.Title));
+            }
+            if (bookQuery.FromDate != null)
+            {
+                books = books.Where(b => b.Comments.Any(c => c.CreatedAt > DateTime.UnixEpoch.AddDays(bookQuery.FromDate.Value - 1)));
+            }
+            var skip = (bookQuery.Page - 1) * bookQuery.PageSize;
+            return await books.Skip(skip).Take(bookQuery.PageSize).ToListAsync();
         }
 
         public async Task<Book?> UpdateBook(Book book)
