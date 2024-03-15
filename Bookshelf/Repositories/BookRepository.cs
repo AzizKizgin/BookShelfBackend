@@ -9,6 +9,7 @@ using Bookshelf.Interfaces;
 using Bookshelf.Mappers;
 using Bookshelf.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Bookshelf.Repositories
 {
@@ -77,6 +78,10 @@ namespace Bookshelf.Repositories
             if (existingBook == null)
             {
                 return null;
+            }
+            if (!existingBook.Comments.IsNullOrEmpty())
+            {
+                throw new InvalidOperationException("Cannot update a book with comments");
             }
             existingBook.Title = book.Title;
             await _context.SaveChangesAsync();
