@@ -17,11 +17,19 @@ namespace Bookshelf.Controllers
         private readonly UserManager<AppUser> _userManager; 
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
-        public UserController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager)
+
+        private readonly ICommentRepository _commentRepository;
+        public UserController(
+            UserManager<AppUser> userManager, 
+            ITokenService tokenService, 
+            SignInManager<AppUser> signInManager,
+            ICommentRepository commentRepository
+            )
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
+            _commentRepository = commentRepository;
         }
 
         [HttpPost("register")]
@@ -104,6 +112,34 @@ namespace Bookshelf.Controllers
                 {
                     return BadRequest("Invalid username or password");
                 }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                await _signInManager.SignOutAsync();
+                return Ok("Logged out");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{userId}/comments")]
+        public async Task<ActionResult<List<Comment>>> GetCommentsByUser(string userId)
+        {
+            try
+            {
+                var comments = await _commentRepository.GetCommentsByUser(userId);
+                return Ok(comments);
             }
             catch (Exception e)
             {
