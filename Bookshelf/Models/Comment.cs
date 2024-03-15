@@ -13,8 +13,8 @@ namespace Bookshelf.Models
         public DateTime? UpdatedAt { get; set; } = null;
         public int? BookId { get; set; }
         public Book? Book { get; set; }
-        public string? AppUserId { get; set; }
-        public AppUser? AppUser { get; set; }
+        public string AppUserId { get; set; } = string.Empty;
+        public AppUser AppUser { get; set; } = null!;
         public List<AppUser> LikedBy { get; set; } = new List<AppUser>();
     }
 }
