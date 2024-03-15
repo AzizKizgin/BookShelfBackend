@@ -12,8 +12,8 @@ namespace Bookshelf.Interfaces
     {
         Task<List<Book>> GetBooks(BookQueryObject queryObject);
         Task<Book?> GetBook(int id);
-        Task<Book> AddBook(BookDto book);
-        Task<Book?> UpdateBook(Book book);
+        Task<Book> AddBook(CreateBookDto book);
+        Task<Book?> UpdateBook(int bookId, UpdateBookDto book);
         Task<Book?> DeleteBook(int id);
     }
 }

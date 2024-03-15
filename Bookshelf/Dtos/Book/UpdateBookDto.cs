@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Bookshelf.Dtos.Book
 {
-    public class BookDto
+    public class UpdateBookDto
     {
         public string Title { get; set; } = string.Empty;
     }

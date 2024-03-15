@@ -21,9 +21,9 @@ namespace Bookshelf.Repositories
             _context = context;
         }
 
-        public async Task<Book> AddBook(BookDto book)
+        public async Task<Book> AddBook(CreateBookDto book)
         {
-            var result = await _context.Books.AddAsync(book.BookFromDto());
+            var result = await _context.Books.AddAsync(book.BookFromCreateBookDto());
             await _context.SaveChangesAsync();
             return result.Entity;
         }
@@ -71,9 +71,9 @@ namespace Bookshelf.Repositories
             return await books.Skip(skip).Take(bookQuery.PageSize).ToListAsync();
         }
 
-        public async Task<Book?> UpdateBook(Book book)
+        public async Task<Book?> UpdateBook(int bookId, UpdateBookDto book)
         {
-            var existingBook = await _context.Books.FindAsync(book.Id);
+            var existingBook = await _context.Books.FindAsync(bookId);
             if (existingBook == null)
             {
                 return null;

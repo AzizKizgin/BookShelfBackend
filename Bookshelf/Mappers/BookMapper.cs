@@ -9,11 +9,19 @@ namespace Bookshelf.Mappers
 {
     public static class BookMapper
     {
-        public static Book BookFromDto(this BookDto bookDto)
+        public static Book BookFromCreateBookDto(this CreateBookDto createBookDto)
         {
             return new Book
             {
-                Title = bookDto.Title
+                Title = createBookDto.Title
+            };
+        }
+
+        public static Book BookFromUpdateBookDto(this UpdateBookDto createBookDto)
+        {
+            return new Book
+            {
+                Title = createBookDto.Title
             };
         }
     }

@@ -6,6 +6,7 @@ using Bookshelf.Dtos.Book;
 using Bookshelf.Dtos.Comment;
 using Bookshelf.Helpers;
 using Bookshelf.Interfaces;
+using Bookshelf.Mappers;
 using Bookshelf.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -57,7 +58,7 @@ namespace Bookshelf.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Book>> AddBook([FromBody] BookDto book)
+        public async Task<ActionResult<Book>> AddBook([FromBody] CreateBookDto book)
         {
             try {
                 var newBook = await _bookRepository.AddBook(book);
@@ -70,14 +71,10 @@ namespace Bookshelf.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Book>> UpdateBook([FromRoute] int id, [FromBody] Book book)
+        public async Task<ActionResult<Book>> UpdateBook([FromRoute] int id, [FromBody] UpdateBookDto book)
         {
             try {
-                if (id != book.Id)
-                {
-                    return BadRequest();
-                }
-                var updatedBook = await _bookRepository.UpdateBook(book);
+                var updatedBook = await _bookRepository.UpdateBook(id, book);
                 if (updatedBook == null)
                 {
                     return NotFound();
