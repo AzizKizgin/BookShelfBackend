@@ -4,6 +4,7 @@ using Bookshelf.Interfaces;
 using Bookshelf.Models;
 using Bookshelf.Repositories;
 using Bookshelf.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -70,7 +71,7 @@ builder.Services.AddAuthentication(
         options.DefaultForbidScheme =
         options.DefaultScheme =
         options.DefaultSignInScheme =
-        options.DefaultSignOutScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
     }
 ).AddJwtBearer(options =>
 {
