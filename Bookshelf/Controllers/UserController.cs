@@ -40,7 +40,7 @@ namespace Bookshelf.Controllers
                     Email = registerDto.Email
                 };
 
-                var result = await _userManager.CreateAsync(user, registerDto.Password);
+                var result = await _userManager.CreateAsync(user, registerDto.Password!);
 
                 if (result.Succeeded)
                 {
@@ -50,8 +50,8 @@ namespace Bookshelf.Controllers
                     {
                         return Ok(new NewUserDto
                         {
-                            UserName = user.UserName,
-                            Email = user.Email,
+                            UserName = user.UserName!,
+                            Email = user.Email!,
                             Token = _tokenService.GenerateToken(user)
                         });
                     }

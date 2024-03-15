@@ -28,6 +28,16 @@ namespace Bookshelf.Data
                 new IdentityRole {Name = "User", NormalizedName = "USER"}
             };
             modelBuilder.Entity<IdentityRole>().HasData(roles);
+
+            modelBuilder.Entity<AppUser>()
+                .HasMany(u => u.Comments)
+                .WithOne(c => c.AppUser)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.AppUser)
+                .WithMany(u => u.Comments)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

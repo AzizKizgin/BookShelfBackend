@@ -8,6 +8,7 @@ namespace Bookshelf.Models
 {
     public class AppUser: IdentityUser
     {
-        
+        public List<Comment> Comments { get; set; } = new List<Comment>();
+        public List<Comment> LikedComments { get; set; } = new List<Comment>();
     }
 }
