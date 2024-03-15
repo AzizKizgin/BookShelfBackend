@@ -10,10 +10,11 @@ namespace Bookshelf.Interfaces
 {
     public interface ICommentRepository
     {
-        Task<List<Comment>> GetComments(CommentQueryObject commentQuery);
+        Task<List<Comment>> GetBookComments(CommentQueryObject commentQuery);
         Task<Comment?> GetComment(int id);
         Task<Comment> AddComment(int bookId, CreateCommentDto comment);
-        Task<Comment?> UpdateComment(int bookId, int commentId, UpdateCommentDto comment);
-        Task<Comment?> DeleteComment(int id);
+        Task<Comment?> UpdateComment(int bookId, string userId, int commentId, UpdateCommentDto comment);
+        Task<Comment?> DeleteComment(int id,string userId);
+        Task<List<Comment>> GetCommentsByUser(string userId);
     }
 }

@@ -29,12 +29,16 @@ namespace Bookshelf.Repositories
             return result.Entity;
         }
 
-        public async Task<Comment?> DeleteComment(int id)
+        public async Task<Comment?> DeleteComment(int id, string userId)
         {
             var comment = await _context.Comments.FindAsync(id);
             if (comment == null)
             {
                 return null;
+            }
+            if (comment.AppUser.Id != userId)
+            {
+                throw new InvalidOperationException("You are not authorized to delete this comment");
             }
             _context.Comments.Remove(comment);
             await _context.SaveChangesAsync();
@@ -51,7 +55,7 @@ namespace Bookshelf.Repositories
             return comment;
         }
 
-        public async Task<List<Comment>> GetComments(CommentQueryObject commentQuery)
+        public async Task<List<Comment>> GetBookComments(CommentQueryObject commentQuery)
         {
             var comments = _context.Comments.Where(c => c.BookId == commentQuery.BookId).AsQueryable();
             // if (commentQuery.OrderByFavorite)
@@ -63,17 +67,27 @@ namespace Bookshelf.Repositories
             return await comments.Skip(skip).Take(commentQuery.PageSize).ToListAsync();
         }
 
-        public async Task<Comment?> UpdateComment(int bookId, int commentId, UpdateCommentDto comment)
+        public async Task<Comment?> UpdateComment(int bookId, string userId, int commentId, UpdateCommentDto comment)
         {
             var existingComment = await _context.Comments.FindAsync(commentId);
             if (existingComment == null)
             {
                 return null;
             }
+            if (existingComment.AppUser.Id != userId)
+            {
+                throw new InvalidOperationException("You are not authorized to update this comment");
+            }
             existingComment.Content = comment.Content;
             existingComment.UpdatedAt = DateTime.Now;
             await _context.SaveChangesAsync();
             return existingComment;
+        }
+
+        public async Task<List<Comment>> GetCommentsByUser(string userId)
+        {
+            var comments = await _context.Comments.Where(c => c.AppUserId == userId).ToListAsync();
+            return comments;
         }
     }
 }
