@@ -22,6 +22,21 @@ namespace Bookshelf.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("AppUserComment", b =>
+                {
+                    b.Property<string>("LikedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("LikedCommentsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("LikedById", "LikedCommentsId");
+
+                    b.HasIndex("LikedCommentsId");
+
+                    b.ToTable("AppUserComment");
+                });
+
             modelBuilder.Entity("Bookshelf.Models.AppUser", b =>
                 {
                     b.Property<string>("Id")
@@ -112,6 +127,10 @@ namespace Bookshelf.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AppUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int?>("BookId")
                         .HasColumnType("int");
 
@@ -126,6 +145,8 @@ namespace Bookshelf.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
 
                     b.HasIndex("BookId");
 
@@ -157,6 +178,20 @@ namespace Bookshelf.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "2edaa3e1-da29-47cc-9050-784c0e16650b",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "6e3e6460-501b-4d85-877b-8ad274c21445",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -265,11 +300,34 @@ namespace Bookshelf.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("AppUserComment", b =>
+                {
+                    b.HasOne("Bookshelf.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("LikedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bookshelf.Models.Comment", null)
+                        .WithMany()
+                        .HasForeignKey("LikedCommentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Bookshelf.Models.Comment", b =>
                 {
+                    b.HasOne("Bookshelf.Models.AppUser", "AppUser")
+                        .WithMany("Comments")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("Bookshelf.Models.Book", "Book")
                         .WithMany("Comments")
                         .HasForeignKey("BookId");
+
+                    b.Navigation("AppUser");
 
                     b.Navigation("Book");
                 });
@@ -323,6 +381,11 @@ namespace Bookshelf.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Bookshelf.Models.AppUser", b =>
+                {
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("Bookshelf.Models.Book", b =>
