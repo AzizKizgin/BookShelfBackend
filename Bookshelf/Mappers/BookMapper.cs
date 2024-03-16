@@ -13,7 +13,14 @@ namespace Bookshelf.Mappers
         {
             return new Book
             {
-                Title = createBookDto.Title
+                Title = createBookDto.Title,
+                Comments = new List<Comment>
+                {
+                    new Comment
+                    {
+                        Content = createBookDto.Comment
+                    }
+                }
             };
         }
 
