@@ -22,11 +22,11 @@ namespace Bookshelf.Repositories
         }
 
 
-        public async Task<Comment> AddComment(int bookId, CreateCommentDto comment)
+        public async Task<Comment> AddComment(Comment comment)
         {
-            var result = await _context.Comments.AddAsync(comment.ToCommentFromCreateDto(bookId));
+            await _context.Comments.AddAsync(comment);
             await _context.SaveChangesAsync();
-            return result.Entity;
+            return comment;
         }
 
         public async Task<Comment?> DeleteComment(int id, string userId)
