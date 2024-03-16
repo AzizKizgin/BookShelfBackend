@@ -13,7 +13,7 @@ namespace Bookshelf.Interfaces
         Task<List<Comment>> GetBookComments(CommentQueryObject commentQuery);
         Task<Comment?> GetComment(int id);
         Task<Comment> AddComment(Comment comment);
-        Task<Comment?> UpdateComment(int bookId, string userId, int commentId, UpdateCommentDto comment);
+        Task<Comment?> UpdateComment(string userId, int commentId, UpdateCommentDto comment);
         Task<Comment?> DeleteComment(int id,string userId);
         Task<List<Comment>> GetCommentsByUser(string userId);
         Task<List<Comment>> GetUserFavoriteComments(string userId);
