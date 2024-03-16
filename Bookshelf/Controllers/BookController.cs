@@ -44,12 +44,12 @@ namespace Bookshelf.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook([FromRoute] int id)
+        [HttpGet("{title}")]
+        public async Task<ActionResult<Book>> GetBook([FromRoute] string title)
         {
             try
             {
-                var book = await _bookRepository.GetBook(id);
+                var book = await _bookRepository.GetBook(title);
                 if (book == null)
                 {
                     return NotFound();
@@ -67,8 +67,17 @@ namespace Bookshelf.Controllers
         public async Task<ActionResult<Book>> AddBook([FromBody] CreateBookDto book)
         {
             try {
-                var newBook = await _bookRepository.AddBook(book);
-                return CreatedAtAction(nameof(GetBook), new { id = newBook.Id }, newBook);
+                var username = User.Identity.Name;
+                var user = await _userManger.FindByNameAsync(username);
+                if (user == null)
+                {
+                    return Unauthorized();
+                }
+                var bookEntity = book.BookFromCreateBookDto();
+                bookEntity.Comments[0].AppUserId = user.Id;
+                bookEntity.Comments[0].AppUser = user;
+                var newBook = await _bookRepository.AddBook(bookEntity);
+                return Ok(newBook);
             }
             catch (InvalidOperationException e)
             {
@@ -76,19 +85,18 @@ namespace Bookshelf.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{title}")]
         [Authorize]
-        public async Task<ActionResult<Book>> UpdateBook([FromRoute] int id, [FromBody] UpdateBookDto book)
+        public async Task<ActionResult<Book>> UpdateBook([FromRoute] string title, [FromBody] UpdateBookDto book)
         {
             try {
-                // get the user id from the token
                 var username = User.Identity.Name;
                 var user = await _userManger.FindByNameAsync(username);
                 if (user == null)
                 {
                     return Unauthorized();
                 }
-                var updatedBook = await _bookRepository.UpdateBook(id, book);
+                var updatedBook = await _bookRepository.UpdateBook(title, book);
                 if (updatedBook == null)
                 {
                     return NotFound();
@@ -167,6 +175,7 @@ namespace Bookshelf.Controllers
                 var commentEntity = comment.ToCommentFromCreateDto(bookId);
              
                 commentEntity.AppUserId =  user.Id;
+                commentEntity.AppUser = user;
                 var newComment = await _commentRepository.AddComment(commentEntity);
                 return Ok(newComment);
             }
