@@ -48,6 +48,12 @@ namespace Bookshelf.Controllers
                     return BadRequest("Invalid data");
                 }
 
+                var userExists = await _userManager.FindByEmailAsync(registerDto.UserName!);
+                if (userExists != null)
+                {
+                    return BadRequest("User already exists");
+                }
+
                 var user = new AppUser
                 {
                     UserName = registerDto.UserName,
