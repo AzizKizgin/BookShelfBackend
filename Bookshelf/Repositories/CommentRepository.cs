@@ -89,5 +89,15 @@ namespace Bookshelf.Repositories
             var comments = await _context.Comments.Where(c => c.AppUserId == userId).ToListAsync();
             return comments;
         }
+
+        public async Task<List<Comment>> GetUserFavoriteComments(string userId)
+        {
+            var comments = await _context.Users
+                        .Where(u => u.Id == userId)
+                        .SelectMany(u => u.LikedComments)
+                        .Include(c => c.Book)
+                        .ToListAsync();
+            return comments;
+        }
     }
 }

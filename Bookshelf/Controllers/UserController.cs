@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bookshelf.Data;
 using Bookshelf.Dtos.User;
 using Bookshelf.Interfaces;
+using Bookshelf.Mappers;
 using Bookshelf.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bookshelf.Controllers
 {
@@ -19,17 +22,20 @@ namespace Bookshelf.Controllers
         private readonly SignInManager<AppUser> _signInManager;
 
         private readonly ICommentRepository _commentRepository;
+        private readonly ApplicationDBContext _context;
         public UserController(
             UserManager<AppUser> userManager, 
             ITokenService tokenService, 
             SignInManager<AppUser> signInManager,
-            ICommentRepository commentRepository
+            ICommentRepository commentRepository,
+            ApplicationDBContext context
             )
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
             _commentRepository = commentRepository;
+            _context = context;
         }
 
         [HttpPost("register")]
@@ -146,5 +152,50 @@ namespace Bookshelf.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("{userId}/comments/favorites")]
+        public async Task<ActionResult<List<Comment>>> GetFavoriteCommentsByUser(string userId)
+        {
+            try
+            {
+                var comments = await _commentRepository.GetUserFavoriteComments(userId);
+                return Ok(comments);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{userId}")]
+        public async Task<ActionResult<AppUser>> GetUser(string userId)
+        {
+            try
+            {
+        var user = await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new AppUser
+            {
+                Id = u.Id,
+                UserName = u.UserName,
+                Email = u.Email,
+                Comments = u.Comments.Select(c => new Comment
+                {
+                    Id = c.Id,
+                    Content = c.Content,
+                    CreatedAt = c.CreatedAt,
+                    UpdatedAt = c.UpdatedAt,
+                }).ToList(),
+                LikedComments = u.LikedComments.Select(fc => fc.MapToUserComment()).ToList()
+            })
+            .FirstOrDefaultAsync();
+                return Ok(user);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        
     }
 }
