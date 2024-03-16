@@ -35,6 +35,26 @@ namespace Bookshelf.Mappers
                 UpdatedAt = comment.UpdatedAt,
                 BookId = bookId
             };
+
+        public static Comment MapToUserComment(this Comment comment) =>
+            new Comment
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                CreatedAt = comment.CreatedAt,
+                UpdatedAt = comment.UpdatedAt,
+                Book = new Book
+                {
+                    Id = comment.Book.Id,
+                    Title = comment.Book.Title,
+                },
+                BookId = comment.BookId,
+                LikedBy = comment.LikedBy.Select(u => new AppUser
+                {
+                    Id = u.Id,
+                    UserName = u.UserName,
+                }).ToList()
+    };
          
     }
 }
