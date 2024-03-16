@@ -82,7 +82,7 @@ namespace Bookshelf.Controllers
         {
             try {
                 // get the user id from the token
-                var username = User.GetUsername();
+                var username = User.Identity.Name;
                 var user = await _userManger.FindByNameAsync(username);
                 if (user == null)
                 {
@@ -158,12 +158,21 @@ namespace Bookshelf.Controllers
         {
             try
             {
-                var newComment = await _commentRepository.AddComment(bookId, comment);
-                return CreatedAtAction(nameof(GetComment), new { id = newComment.Id }, newComment);
+                var username = User.Identity.Name;
+                var user = await _userManger.FindByNameAsync(username);
+                if (user == null)
+                {
+                    return Unauthorized();
+                }
+                var commentEntity = comment.ToCommentFromCreateDto(bookId);
+             
+                commentEntity.AppUserId =  user.Id;
+                var newComment = await _commentRepository.AddComment(commentEntity);
+                return Ok(newComment);
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(e);
             }
         }
 
@@ -173,7 +182,7 @@ namespace Bookshelf.Controllers
         {
             try
             {
-                var username = User.GetUsername();
+                var username = User.Identity.Name;
                 var user = await _userManger.FindByNameAsync(username);
                 if (user == null)
                 {
@@ -198,7 +207,7 @@ namespace Bookshelf.Controllers
         {
             try
             {
-                var username = User.GetUsername();
+                var username = User.Identity.Name;
                 var user = await _userManger.FindByNameAsync(username);
                 if (user == null)
                 {
@@ -224,7 +233,7 @@ namespace Bookshelf.Controllers
         {
             try
             {
-                var username = User.GetUsername();
+                var username = User.Identity.Name;
                 var user = await _userManger.FindByNameAsync(username);
                 if (user == null)
                 {
