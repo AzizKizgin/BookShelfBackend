@@ -17,7 +17,7 @@ namespace Bookshelf.Services
         public TokenService( IConfiguration config)
         {
             _config = config;
-            _key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_config["Secret"]!));
+            _key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_config["JWT:Secret"]!));
         }
         public string GenerateToken(AppUser user)
         {
@@ -32,8 +32,8 @@ namespace Bookshelf.Services
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.Now.AddDays(7),
                 SigningCredentials = creds,
-                Issuer = _config["Issuer"],
-                Audience = _config["Audience"]
+                Issuer = _config["JWT:Issuer"],
+                Audience = _config["JWT:Audience"]
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
