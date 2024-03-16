@@ -217,5 +217,40 @@ namespace Bookshelf.Controllers
             }
         }
 
+        // favorite comments
+        [HttpPost("{bookId}/comments/favorites")]
+        [Authorize]
+        public async Task<ActionResult<Comment>> FavoriteComment(int bookId, int commentId)
+        {
+            try
+            {
+                var username = User.GetUsername();
+                var user = await _userManger.FindByNameAsync(username);
+                if (user == null)
+                {
+                    return Unauthorized();
+                }
+                var comment = await _commentRepository.GetComment(commentId);
+                if (comment == null)
+                {
+                    return NotFound("Comment not found");
+                }
+                var likedComment = user.LikedComments.FirstOrDefault(c => c.Id == commentId);
+                if (likedComment != null)
+                {
+                    user.LikedComments.Remove(likedComment);
+                    await _userManger.UpdateAsync(user);
+                    return Ok(comment);
+                }
+                user.LikedComments.Add(comment);
+                await _userManger.UpdateAsync(user);
+                return Ok(comment);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }
