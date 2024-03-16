@@ -67,7 +67,7 @@ namespace Bookshelf.Repositories
             return await comments.Skip(skip).Take(commentQuery.PageSize).ToListAsync();
         }
 
-        public async Task<Comment?> UpdateComment(int bookId, string userId, int commentId, UpdateCommentDto comment)
+        public async Task<Comment?> UpdateComment(string userId, int commentId, UpdateCommentDto comment)
         {
             var existingComment = await _context.Comments.FindAsync(commentId);
             if (existingComment == null)
