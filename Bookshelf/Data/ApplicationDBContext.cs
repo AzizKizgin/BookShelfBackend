@@ -38,6 +38,11 @@ namespace Bookshelf.Data
                 .HasOne(c => c.AppUser)
                 .WithMany(u => u.Comments)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<Book>()
+                .HasMany(b => b.Comments)
+                .WithOne(c => c.Book)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
