@@ -19,12 +19,13 @@ namespace Bookshelf.Mappers
                 BookId = comment.BookId
             };
 
-        public static Comment ToCommentFromCreateDto(this CreateCommentDto comment, int bookId) =>
+        public static Comment ToCommentFromCreateDto(this CreateCommentDto comment, Book book) =>
             new Comment
             {
                 Content = comment.Content,
                 CreatedAt = DateTime.Now,
-                BookId = bookId
+                BookId = book.Id,
+                Book = book,
             };
 
         public static Comment ToCommentFromUpdateDto(this UpdateCommentDto comment, int bookId, int commentId) =>
@@ -36,25 +37,48 @@ namespace Bookshelf.Mappers
                 BookId = bookId
             };
 
-        public static Comment MapToUserComment(this Comment comment) =>
-            new Comment
+        public static Comment MapToBookComment(this Comment comment) {
+            var bookComment =  new Comment
             {
                 Id = comment.Id,
                 Content = comment.Content,
                 CreatedAt = comment.CreatedAt,
                 UpdatedAt = comment.UpdatedAt,
-                Book = new Book
+                AppUserId = comment.AppUserId,
+            };
+
+            if (comment.BookId != null)
+            {
+                bookComment.BookId = comment.BookId;
+            }
+            
+            if (comment.Book != null)
+            {
+                bookComment.Book = new Book
                 {
                     Id = comment.Book.Id,
-                    Title = comment.Book.Title,
-                },
-                BookId = comment.BookId,
-                LikedBy = comment.LikedBy.Select(u => new AppUser
+                    Title = comment.Book.Title
+                };
+            }
+
+            if (comment.AppUser != null)
+            {
+                bookComment.AppUser = new AppUser
+                {
+                    Id = comment.AppUser.Id,
+                    UserName = comment.AppUser.UserName
+                };
+            }
+
+            if (comment.LikedBy != null)
+            {
+                bookComment.LikedBy = comment.LikedBy.Select(u => new AppUser
                 {
                     Id = u.Id,
-                    UserName = u.UserName,
-                }).ToList()
-    };
-         
+                    UserName = u.UserName
+                }).ToList();
+            }
+            return bookComment;
+        }
     }
 }
