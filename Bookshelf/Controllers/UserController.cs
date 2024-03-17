@@ -145,20 +145,6 @@ namespace Bookshelf.Controllers
             }
         }
 
-        [HttpGet("{userId}/comments")]
-        public async Task<ActionResult<List<Comment>>> GetCommentsByUser(string userId)
-        {
-            try
-            {
-                var comments = await _commentRepository.GetCommentsByUser(userId);
-                return Ok(comments);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
         [HttpGet("{userId}/comments/favorites")]
         public async Task<ActionResult<List<Comment>>> GetFavoriteCommentsByUser(string userId)
         {
@@ -178,23 +164,18 @@ namespace Bookshelf.Controllers
         {
             try
             {
-        var user = await _context.Users
-            .Where(u => u.Id == userId)
-            .Select(u => new AppUser
+            var user = await _context.Users
+                .Where(u => u.Id == userId)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
             {
-                Id = u.Id,
-                UserName = u.UserName,
-                Email = u.Email,
-                Comments = u.Comments.Select(c => new Comment
-                {
-                    Id = c.Id,
-                    Content = c.Content,
-                    CreatedAt = c.CreatedAt,
-                    UpdatedAt = c.UpdatedAt,
-                }).ToList(),
-                LikedComments = u.LikedComments.Select(fc => fc.MapToUserComment()).ToList()
-            })
-            .FirstOrDefaultAsync();
+                return NotFound();
+            }
+                var likedComments = await _commentRepository.GetUserFavoriteComments(userId);
+                var comments = await _commentRepository.GetCommentsByUser(userId);
+                user.LikedComments = likedComments;
+                user.Comments = comments;
                 return Ok(user);
             }
             catch (Exception e)

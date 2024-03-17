@@ -44,24 +44,6 @@ namespace Bookshelf.Controllers
             }
         }
 
-        [HttpGet("{title}")]
-        public async Task<ActionResult<Book>> GetBook([FromRoute] string title)
-        {
-            try
-            {
-                var book = await _bookRepository.GetBook(title);
-                if (book == null)
-                {
-                    return NotFound();
-                }
-                return Ok(book);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<Book>> AddBook([FromBody] CreateBookDto book)

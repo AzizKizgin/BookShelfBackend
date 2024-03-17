@@ -62,7 +62,7 @@ namespace Bookshelf.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Comment>> AddComment(int bookId, CreateCommentDto comment)
+        public async Task<ActionResult<Comment>> AddComment(string bookTitle, CreateCommentDto comment)
         {
             try
             {
@@ -72,7 +72,12 @@ namespace Bookshelf.Controllers
                 {
                     return Unauthorized();
                 }
-                var commentEntity = comment.ToCommentFromCreateDto(bookId);
+                var book = await _bookRepository.GetBooks(queryObject: new BookQueryObject {Title = bookTitle});
+                if (book.FirstOrDefault() == null)
+                {
+                    return NotFound("Book not found");
+                }
+                var commentEntity = comment.ToCommentFromCreateDto(book.FirstOrDefault()!);
              
                 commentEntity.AppUserId =  user.Id;
                 commentEntity.AppUser = user;
