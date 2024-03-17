@@ -46,7 +46,9 @@ namespace Bookshelf.Repositories
         }
         public async Task<List<Book>> GetBooks(BookQueryObject bookQuery)
         {
-            var books = _context.Books.AsQueryable();
+            var books = _context
+                .Books
+                .AsQueryable();
             if (bookQuery.Title != null)
             {
                 books = books.Where(b => b.Title.Contains(bookQuery.Title));
@@ -56,7 +58,7 @@ namespace Bookshelf.Repositories
                 books = books.Where(b => b.Comments.Any(c => c.CreatedAt > DateTime.UnixEpoch.AddDays(bookQuery.FromDate.Value - 1)));
             }
             var skip = (bookQuery.Page - 1) * bookQuery.PageSize;
-            return await books.ToListAsync();
+            return await books.Skip(skip).Take(bookQuery.PageSize).ToListAsync();
         }
 
         public async Task<Book?> UpdateBook(string title, UpdateBookDto book)
