@@ -7,9 +7,8 @@ namespace Bookshelf.Helpers
 {
     public class CommentQueryObject
     {
-        public int? BookId { get; set; }
+        public string? BookTitle { get; set; }
         public string? Content { get; set; }
-        public string? UserId { get; set; }
         public bool OrderByFavorite { get; set; } = false;
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 15;
