@@ -72,12 +72,12 @@ namespace Bookshelf.Controllers
                 {
                     return Unauthorized();
                 }
-                var book = await _bookRepository.GetBooks(queryObject: new BookQueryObject {Title = bookTitle});
-                if (book.FirstOrDefault() == null)
+                var book = await _bookRepository.GetBook(bookTitle);
+                if (book == null)
                 {
                     return NotFound("Book not found");
                 }
-                var commentEntity = comment.ToCommentFromCreateDto(book.FirstOrDefault()!);
+                var commentEntity = comment.ToCommentFromCreateDto(book);
              
                 commentEntity.AppUserId =  user.Id;
                 commentEntity.AppUser = user;
