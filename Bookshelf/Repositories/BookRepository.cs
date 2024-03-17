@@ -44,19 +44,6 @@ namespace Bookshelf.Repositories
             await _context.SaveChangesAsync();
             return book;
         }
-
-        public async Task<Book?> GetBook(string title)
-        {
-            var book = await _context.Books
-            .Include(b => b.Comments)
-            .FirstOrDefaultAsync(b => b.Title == title);
-            if (book == null)
-            {
-                return null;
-            }
-            return book;
-        }
-
         public async Task<List<Book>> GetBooks(BookQueryObject bookQuery)
         {
             var books = _context.Books.AsQueryable();
@@ -69,7 +56,7 @@ namespace Bookshelf.Repositories
                 books = books.Where(b => b.Comments.Any(c => c.CreatedAt > DateTime.UnixEpoch.AddDays(bookQuery.FromDate.Value - 1)));
             }
             var skip = (bookQuery.Page - 1) * bookQuery.PageSize;
-            return await books.Skip(skip).Take(bookQuery.PageSize).ToListAsync();
+            return await books.ToListAsync();
         }
 
         public async Task<Book?> UpdateBook(string title, UpdateBookDto book)

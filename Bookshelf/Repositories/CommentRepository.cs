@@ -26,7 +26,7 @@ namespace Bookshelf.Repositories
         {
             await _context.Comments.AddAsync(comment);
             await _context.SaveChangesAsync();
-            return comment;
+            return comment.MapToBookComment();
         }
 
         public async Task<Comment?> DeleteComment(int id, string userId)
@@ -47,29 +47,44 @@ namespace Bookshelf.Repositories
 
         public async Task<Comment?> GetComment(int id)
         {
-            var comment = await _context.Comments.FindAsync(id);
-            if (comment == null)
-            {
-                return null;
-            }
+            var comment = await _context
+                .Comments
+                .Include(c => c.Book)
+                .Include(c => c.AppUser)
+                .Include(c => c.LikedBy)
+                .FirstOrDefaultAsync(c => c.Id == id);
             return comment;
         }
 
         public async Task<List<Comment>> GetBookComments(CommentQueryObject commentQuery)
         {
-            var comments = _context.Comments.Where(c => c.BookId == commentQuery.BookId).AsQueryable();
-            // if (commentQuery.OrderByFavorite)
-            // {
+            var comments = _context.Comments
+            .Where(c => c.Book.Title == commentQuery.BookTitle)
+            .Include(c => c.Book)
+            .Include(c => c.AppUser)
+            .Include(c => c.LikedBy)
+            .AsQueryable();
 
-            //     //TODO: Implement OrderByFavorite
-            // }
+            if (commentQuery.OrderByFavorite)
+            {
+                comments = comments.OrderByDescending(c => c.LikedBy.Count);
+            }
+            
             var skip = (commentQuery.Page - 1) * commentQuery.PageSize;
-            return await comments.Skip(skip).Take(commentQuery.PageSize).ToListAsync();
+            return await comments
+                .Skip(skip)
+                .Take(commentQuery.PageSize)
+                .Select(c => c.MapToBookComment())
+                .ToListAsync();
         }
 
         public async Task<Comment?> UpdateComment(string userId, int commentId, UpdateCommentDto comment)
         {
-            var existingComment = await _context.Comments.FindAsync(commentId);
+            var existingComment = await _context.Comments
+                .Include(c => c.Book)
+                .Include(c => c.AppUser)
+                .Include(c => c.LikedBy)
+                .FirstOrDefaultAsync(c => c.Id == commentId);
             if (existingComment == null)
             {
                 return null;
@@ -81,22 +96,32 @@ namespace Bookshelf.Repositories
             existingComment.Content = comment.Content;
             existingComment.UpdatedAt = DateTime.Now;
             await _context.SaveChangesAsync();
-            return existingComment;
+            return existingComment.MapToBookComment();
         }
 
         public async Task<List<Comment>> GetCommentsByUser(string userId)
         {
-            var comments = await _context.Comments.Where(c => c.AppUserId == userId).ToListAsync();
+            var comments = await _context.Comments
+                        .OrderByDescending(c => c.CreatedAt)
+                        .Include(c => c.Book)
+                        .Include(c => c.AppUser)
+                        .Include(c => c.LikedBy)
+                        .Where(c => c.AppUserId == userId)
+                        .Select(c => c.MapToBookComment())
+                        .ToListAsync();
             return comments;
         }
 
         public async Task<List<Comment>> GetUserFavoriteComments(string userId)
         {
-            var comments = await _context.Users
-                        .Where(u => u.Id == userId)
-                        .SelectMany(u => u.LikedComments)
-                        .Include(c => c.Book)
-                        .ToListAsync();
+            var comments = await _context.Comments
+                .Where(c => c.LikedBy.Any(u => u.Id == userId))
+                .Include(c => c.Book)
+                .Include(c => c.AppUser)
+                .Include(c => c.LikedBy)
+                .OrderByDescending(c => c.CreatedAt)
+                .Select(c => c.MapToBookComment())
+                .ToListAsync();
             return comments;
         }
     }

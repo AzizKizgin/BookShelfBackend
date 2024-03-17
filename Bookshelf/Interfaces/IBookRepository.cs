@@ -11,7 +11,6 @@ namespace Bookshelf.Interfaces
     public interface IBookRepository
     {
         Task<List<Book>> GetBooks(BookQueryObject queryObject);
-        Task<Book?> GetBook(string title);
         Task<Book> AddBook(Book book);
         Task<Book?> UpdateBook(string title, UpdateBookDto book);
         Task<Book?> DeleteBook(int id);
