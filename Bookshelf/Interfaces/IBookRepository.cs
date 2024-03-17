@@ -14,5 +14,6 @@ namespace Bookshelf.Interfaces
         Task<Book> AddBook(Book book);
         Task<Book?> UpdateBook(string title, UpdateBookDto book);
         Task<Book?> DeleteBook(int id);
+        Task<Book?> GetBook(string title);
     }
 }

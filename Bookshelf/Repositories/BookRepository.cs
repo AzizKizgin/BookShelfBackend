@@ -44,10 +44,17 @@ namespace Bookshelf.Repositories
             await _context.SaveChangesAsync();
             return book;
         }
+
+        public async Task<Book?> GetBook(string title)
+        {
+            return await _context.Books.FindAsync(title).AsTask();
+        }
+
         public async Task<List<Book>> GetBooks(BookQueryObject bookQuery)
         {
             var books = _context
                 .Books
+                .Include(b => b.Comments)
                 .AsQueryable();
             if (bookQuery.Title != null)
             {
