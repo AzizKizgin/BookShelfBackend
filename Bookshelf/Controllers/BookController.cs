@@ -31,12 +31,12 @@ namespace Bookshelf.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Book>>> GetBooks([FromQuery] BookQueryObject queryObject)
+        public async Task<ActionResult<List<BookListDto>>> GetBooks([FromQuery] BookQueryObject queryObject)
         {
             try
             {
                 var books = await _bookRepository.GetBooks(queryObject);
-                return Ok(books);
+                return Ok(books.Select(b => b.BookListDtoFromBook()));
             }
             catch (Exception e)
             {
