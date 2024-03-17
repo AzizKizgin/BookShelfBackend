@@ -31,5 +31,15 @@ namespace Bookshelf.Mappers
                 Title = createBookDto.Title
             };
         }
+
+        public static BookListDto BookListDtoFromBook(this Book book)
+        {
+            return new BookListDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                CommentCount = book.Comments.Count
+            };
+        }
     }
 }
