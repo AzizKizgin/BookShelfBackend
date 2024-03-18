@@ -52,7 +52,7 @@ namespace Bookshelf.Controllers
                 {
                     return NotFound();
                 }
-                return Ok(comment);
+                return Ok(comment.MapToBookComment());
             }
             catch (Exception e)
             {
@@ -82,7 +82,7 @@ namespace Bookshelf.Controllers
                 commentEntity.AppUserId =  user.Id;
                 commentEntity.AppUser = user;
                 var newComment = await _commentRepository.AddComment(commentEntity);
-                return Ok(newComment);
+                return Ok(newComment.MapToBookComment());
             }
             catch (Exception e)
             {
@@ -107,7 +107,7 @@ namespace Bookshelf.Controllers
                 {
                     return NotFound();
                 }
-                return Ok(updatedComment);
+                return Ok(updatedComment.MapToBookComment());
             }
             catch (Exception e)
             {
