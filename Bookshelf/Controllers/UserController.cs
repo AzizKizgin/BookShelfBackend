@@ -48,7 +48,7 @@ namespace Bookshelf.Controllers
                     return BadRequest("Invalid data");
                 }
 
-                var userExists = await _userManager.FindByEmailAsync(registerDto.UserName!);
+                var userExists = await _userManager.FindByEmailAsync(registerDto.Username!);
                 if (userExists != null)
                 {
                     return BadRequest("User already exists");
@@ -56,7 +56,7 @@ namespace Bookshelf.Controllers
 
                 var user = new AppUser
                 {
-                    UserName = registerDto.UserName,
+                    UserName = registerDto.Username,
                     Email = registerDto.Email
                 };
 
@@ -70,7 +70,7 @@ namespace Bookshelf.Controllers
                     {
                         return Ok(new NewUserDto
                         {
-                            UserName = user.UserName!,
+                            Username = user.UserName!,
                             Email = user.Email!,
                             Token = _tokenService.GenerateToken(user)
                         });
@@ -102,7 +102,7 @@ namespace Bookshelf.Controllers
                 {
                     return BadRequest("Invalid data");
                 }
-                var user = await _userManager.FindByNameAsync(loginDto.UserName!);
+                var user = await _userManager.FindByNameAsync(loginDto.Username!);
 
                 if (user == null)
                 {
@@ -115,7 +115,7 @@ namespace Bookshelf.Controllers
                 {
                     return Ok(new NewUserDto
                     {
-                        UserName = user.UserName!,
+                        Username = user.UserName!,
                         Email = user.Email!,
                         Token = _tokenService.GenerateToken(user)
                     });
