@@ -31,7 +31,7 @@ namespace Bookshelf.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<BookListDto>>> GetBooks([FromQuery] BookQueryObject queryObject)
+        public async Task<ActionResult<List<BookListDto>>> GetBooks([FromQuery] BookListQueryObject queryObject)
         {
             try
             {

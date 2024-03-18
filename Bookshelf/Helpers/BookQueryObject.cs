@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Bookshelf.Helpers
 {
-    public class BookQueryObject
+    public class BookListQueryObject
     {
         public string? Title { get; set; }
         public int? FromDate { get; set; }
