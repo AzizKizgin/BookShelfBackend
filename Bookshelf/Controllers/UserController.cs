@@ -145,12 +145,12 @@ namespace Bookshelf.Controllers
             }
         }
 
-        [HttpGet("{userId}/comments/favorites")]
-        public async Task<ActionResult<List<Comment>>> GetFavoriteCommentsByUser(string userId)
+        [HttpGet("{username}/favorites")]
+        public async Task<ActionResult<List<Comment>>> GetFavoriteCommentsByUser(string username)
         {
             try
             {
-                var comments = await _commentRepository.GetUserFavoriteComments(userId);
+                var comments = await _commentRepository.GetUserFavoriteComments(username);
                 return Ok(comments);
             }
             catch (Exception e)
@@ -159,21 +159,21 @@ namespace Bookshelf.Controllers
             }
         }
 
-        [HttpGet("{userId}")]
-        public async Task<ActionResult<AppUser>> GetUser(string userId)
+        [HttpGet("{username}")]
+        public async Task<ActionResult<AppUser>> GetUser(string username)
         {
             try
             {
             var user = await _context.Users
-                .Where(u => u.Id == userId)
+                .Where(u => u.UserName == username)
                 .FirstOrDefaultAsync();
 
             if (user == null)
             {
                 return NotFound();
             }
-                var likedComments = await _commentRepository.GetUserFavoriteComments(userId);
-                var comments = await _commentRepository.GetCommentsByUser(userId);
+                var likedComments = await _commentRepository.GetUserFavoriteComments(username);
+                var comments = await _commentRepository.GetCommentsByUser(username);
                 user.LikedComments = likedComments;
                 user.Comments = comments;
                 return Ok(user);

@@ -99,23 +99,23 @@ namespace Bookshelf.Repositories
             return existingComment.MapToBookComment();
         }
 
-        public async Task<List<Comment>> GetCommentsByUser(string userId)
+        public async Task<List<Comment>> GetCommentsByUser(string username)
         {
             var comments = await _context.Comments
                         .OrderByDescending(c => c.CreatedAt)
                         .Include(c => c.Book)
                         .Include(c => c.AppUser)
                         .Include(c => c.LikedBy)
-                        .Where(c => c.AppUserId == userId)
+                        .Where(c => c.AppUser.UserName == username)
                         .Select(c => c.MapToBookComment())
                         .ToListAsync();
             return comments;
         }
 
-        public async Task<List<Comment>> GetUserFavoriteComments(string userId)
+        public async Task<List<Comment>> GetUserFavoriteComments(string username)
         {
             var comments = await _context.Comments
-                .Where(c => c.LikedBy.Any(u => u.Id == userId))
+                .Where(c => c.LikedBy.Any(u => u.UserName == username))
                 .Include(c => c.Book)
                 .Include(c => c.AppUser)
                 .Include(c => c.LikedBy)

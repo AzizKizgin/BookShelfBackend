@@ -15,7 +15,7 @@ namespace Bookshelf.Interfaces
         Task<Comment> AddComment(Comment comment);
         Task<Comment?> UpdateComment(string userId, int commentId, UpdateCommentDto comment);
         Task<Comment?> DeleteComment(int id,string userId);
-        Task<List<Comment>> GetCommentsByUser(string userId);
-        Task<List<Comment>> GetUserFavoriteComments(string userId);
+        Task<List<Comment>> GetCommentsByUser(string username);
+        Task<List<Comment>> GetUserFavoriteComments(string username);
     }
 }
