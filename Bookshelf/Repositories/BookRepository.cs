@@ -47,7 +47,9 @@ namespace Bookshelf.Repositories
 
         public async Task<Book?> GetBook(string title)
         {
-            return await _context.Books.FindAsync(title).AsTask();
+            return await _context.Books
+                .Include(b => b.Comments)
+                .FirstOrDefaultAsync(b => b.Title == title);
         }
 
         public async Task<List<Book>> GetBooks(BookListQueryObject bookQuery)
